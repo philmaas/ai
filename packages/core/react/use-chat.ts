@@ -12,6 +12,8 @@ import type {
 } from '../shared/types';
 export type { Message, CreateMessage, UseChatOptions };
 
+type SetMessagesFunction = (prevMessages: Message[]) => Message[];
+
 export type UseChatHelpers = {
   /** Current messages in the chat */
   messages: Message[];
@@ -44,7 +46,7 @@ export type UseChatHelpers = {
    * edit the messages on the client, and then trigger the `reload` method
    * manually to regenerate the AI response.
    */
-  setMessages: (messages: Message[]) => void;
+  setMessages: (messages: Message[] | SetMessagesFunction) => void;
   /** The current value of the input */
   input: string;
   /** setState-powered method to update the input value */
@@ -579,9 +581,18 @@ export function useChat({
   }, []);
 
   const setMessages = useCallback(
-    (messages: Message[]) => {
-      mutate(messages, false);
-      messagesRef.current = messages;
+    (messages: Message[] | SetMessagesFunction) => {
+      let newMessages: Message[] = [];
+      // If the provided messages is a function, call it with the current messages
+      if (typeof messages === 'function') {
+        newMessages = messages(messagesRef.current);
+      } else {
+        newMessages = messages;
+      }
+
+      // Update messages
+      mutate(newMessages, false);
+      messagesRef.current = newMessages;
     },
     [mutate],
   );
