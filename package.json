@@ -1,7 +1,7 @@
 {
   "name": "@phili_maas/custom-ai",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "turbo build",
     "changeset": "changeset",
